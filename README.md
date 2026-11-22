@@ -185,6 +185,22 @@ npx supabase functions deploy iafe-personal --project-ref bnonygghcgbqznikbvqt
 
 ---
 
+## 🧪 Datos de demostración (opcional)
+
+Para explorar la plataforma con datos de ejemplo antes de capturar los reales:
+
+```bash
+# Requiere la clave service_role del proyecto (nunca se sube al repositorio)
+$env:SUPABASE_SERVICE_ROLE_KEY="eyJ..."
+node tools/semilla-demo.mjs            # carga 4 alumnos, grupos, pagos y calificaciones
+node tools/semilla-demo.mjs --limpiar  # borra todo lo de demostración
+```
+
+> La semilla **no** crea cuentas de acceso: los usuarios se administran desde
+> la pantalla *Usuarios*.
+
+---
+
 ## 🛠️ Comandos
 
 | Acción | Comando |
@@ -193,7 +209,12 @@ npx supabase functions deploy iafe-personal --project-ref bnonygghcgbqznikbvqt
 | Aplicar migraciones | `npx supabase db push` (o pegar el SQL en el editor) |
 | Redesplegar la función | `npx supabase functions deploy iafe-personal` |
 | Ver advisors de seguridad | `npx supabase db advisors` |
+| Cargar/borrar demo | `node tools/semilla-demo.mjs [--limpiar]` |
 | Publicar | `git push origin main` (Actions despliega) |
+
+> El flujo de despliegue usa `actions/upload-pages-artifact@v4`; la v3 ya no es
+> compatible con `actions/deploy-pages@v4` (el artefacto se sube pero el
+> despliegue falla con *"No artifacts named github-pages were found"*).
 
 ---
 
