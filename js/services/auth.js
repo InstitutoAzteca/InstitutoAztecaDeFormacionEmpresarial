@@ -115,6 +115,11 @@ export async function cambiarRol(id, rol, sesion) {
   return invocarFuncion({ accion: 'set-role', id, rol }, sesion);
 }
 
+/** La cuenta autenticada cambia su propia contraseña. */
+export async function cambiarMiContrasena(actual, nueva, sesion) {
+  return invocarFuncion({ accion: 'cambiar-mi-contrasena', actual, password: nueva }, sesion);
+}
+
 /** ¿La sesión actual tiene permisos de administrador? */
 export function esAdmin(perfil) {
   return perfil?.rol === ROL.ADMIN && perfil?.activo !== false;

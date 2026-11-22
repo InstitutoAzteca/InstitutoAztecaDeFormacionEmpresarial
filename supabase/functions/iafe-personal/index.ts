@@ -11,6 +11,7 @@
 //   reset-password   → restablece la contraseña (requiere JWT de administrador)
 //   set-active       → activa/desactiva una cuenta (requiere JWT de administrador)
 //   set-role         → cambia el rol de una cuenta (requiere JWT de administrador)
+//   cambiar-mi-contrasena → la cuenta cambia su propia contraseña
 // =============================================================================
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
@@ -233,6 +234,37 @@ Deno.serve(async (req) => {
         .eq('id', id);
       if (error) return fail(error.message, 400);
       return json({ ok: true });
+    }
+
+    case 'cambiar-mi-contrasena': {
+      // Cualquier cuenta del personal cambia su propia contraseña.
+      const uid = jwtSubject(token);
+      if (!uid) return fail('Sesión no válida', 403);
+
+      const password = String(body.password ?? '');
+      const actual = String(body.actual ?? '');
+      if (password.length < 8) {
+        return fail('La nueva contraseña debe tener al menos 8 caracteres', 400);
+      }
+      if (password === actual) {
+        return fail('La nueva contraseña debe ser distinta de la actual', 400);
+      }
+
+      const { data: persona } = await admin
+        .from('iafe_personal')
+        .select('email, activo')
+        .eq('id', uid)
+        .maybeSingle();
+      if (!persona || !persona.activo) {
+        return fail('Tu cuenta no está activa en la plataforma', 403);
+      }
+
+      const { error: errorActual } = await admin.auth.admin.updateUserById(uid, {
+        password,
+      });
+      if (errorActual) return fail(errorActual.message, 400);
+
+      return json({ ok: true, email: persona.email });
     }
 
     default:

@@ -150,6 +150,11 @@ de servidor de correo.
 | `create-user` | Administrador autenticado. |
 | `reset-password` | Administrador autenticado. |
 | `set-active` / `set-role` | Administrador autenticado. |
+| `cambiar-mi-contrasena` | Cualquier cuenta del equipo (para su propia contraseña). |
+
+Cada persona puede cambiar su propia contraseña desde **Cambiar contraseña**, en
+la parte inferior de la barra lateral. Al cambiarla se revocan las sesiones
+abiertas: la siguiente vez habrá que entrar de nuevo.
 
 Código fuente: [`supabase/functions/iafe-personal/index.ts`](supabase/functions/iafe-personal/index.ts).
 

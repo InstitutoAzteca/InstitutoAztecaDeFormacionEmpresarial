@@ -258,8 +258,8 @@ a { color: var(--navy-medio); text-decoration-thickness: 1px; text-underline-off
   color: rgba(255,255,255,0.85);
 }
 
-.lateral__pie { border-top: 1px solid rgba(255,255,255,0.1); padding: var(--e-4) var(--e-5) var(--e-5); }
-.lateral__usuario { display: flex; align-items: center; gap: var(--e-3); margin-bottom: var(--e-3); }
+.lateral__pie { border-top: 1px solid rgba(255,255,255,0.1); padding: var(--e-4) var(--e-5) var(--e-5); display: flex; flex-direction: column; gap: var(--e-2); }
+.lateral__usuario { display: flex; align-items: center; gap: var(--e-3); margin-bottom: var(--e-1); }
 .lateral__usuario-datos { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
 .lateral__usuario-nombre { font-size: var(--t-sm); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .lateral__usuario-rol { font-size: var(--t-xxs); letter-spacing: 0.1em; text-transform: uppercase; color: var(--oro-brillo); }

@@ -3,8 +3,8 @@
 import { supabase } from './supabase-client.js';
 import { ROL } from './config.js';
 import { estado, setEstado, cargarConfig, pintarCiclo } from './state.js';
-import { entrar, salir, cargarPerfil } from './services/auth.js';
-import { aviso, ICONO, iniciales, colorAvatar, escapeHTML } from './utils/ui.js';
+import { entrar, salir, cargarPerfil, cambiarMiContrasena } from './services/auth.js';
+import { aviso, ICONO, iniciales, colorAvatar, escapeHTML, abrirModal } from './utils/ui.js';
 import { montarLogin } from './views/login.js';
 import { renderPanel } from './views/panel.js';
 import { renderAlumnos } from './views/alumnos.js';
@@ -201,6 +201,81 @@ async function manejarSesion(sesion) {
   await mostrarApp();
 }
 
+// ------------------------------------------------------- cambio de clave ---
+function abrirCambioContrasena() {
+  const modal = abrirModal({
+    titulo: 'Cambiar contraseña',
+    subtitulo: estado.perfil?.email ?? '',
+    tamano: 'angosto',
+    cuerpo: `
+      <form class="form" id="form-clave" novalidate>
+        <div class="campo">
+          <label class="etiqueta" for="cl-actual">Contraseña actual</label>
+          <input class="input" type="password" id="cl-actual" name="actual" autocomplete="current-password" required />
+        </div>
+        <div class="campo">
+          <label class="etiqueta" for="cl-nueva">Contraseña nueva</label>
+          <input class="input" type="password" id="cl-nueva" name="nueva" autocomplete="new-password" minlength="8" required />
+          <span class="ayuda">Mínimo 8 caracteres.</span>
+        </div>
+        <div class="campo">
+          <label class="etiqueta" for="cl-repeticion">Repite la contraseña nueva</label>
+          <input class="input" type="password" id="cl-repeticion" name="repeticion" autocomplete="new-password" minlength="8" required />
+        </div>
+        <p class="alerta alerta--error" id="cl-error" hidden></p>
+      </form>`,
+    pie: `
+      <button class="btn btn--borde" type="button" data-cerrar>Cancelar</button>
+      <button class="btn btn--primario" type="submit" form="form-clave">Guardar contraseña</button>`,
+  });
+
+  modal.panel.querySelector('[data-cerrar]').addEventListener('click', () => modal.close());
+
+  const form = modal.panel.querySelector('#form-clave');
+  const error = modal.panel.querySelector('#cl-error');
+
+  form.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    error.setAttribute('hidden', '');
+
+    const actual = form.actual.value;
+    const nueva = form.nueva.value;
+    const repeticion = form.repeticion.value;
+
+    if (nueva.length < 8) {
+      error.textContent = 'La contraseña nueva debe tener al menos 8 caracteres.';
+      error.removeAttribute('hidden');
+      return;
+    }
+    if (nueva !== repeticion) {
+      error.textContent = 'Las contraseñas nuevas no coinciden.';
+      error.removeAttribute('hidden');
+      return;
+    }
+    if (nueva === actual) {
+      error.textContent = 'La contraseña nueva debe ser distinta de la actual.';
+      error.removeAttribute('hidden');
+      return;
+    }
+
+    const boton = modal.panel.querySelector('[type="submit"]');
+    boton.disabled = true;
+    boton.textContent = 'Guardando…';
+
+    try {
+      await cambiarMiContrasena(actual, nueva, estado.sesion?.access_token);
+      modal.close();
+      aviso('Contraseña actualizada', 'exito', 4000);
+      form.reset();
+    } catch (errorClave) {
+      error.textContent = errorClave.message || 'No se pudo cambiar la contraseña.';
+      error.removeAttribute('hidden');
+      boton.disabled = false;
+      boton.textContent = 'Guardar contraseña';
+    }
+  });
+}
+
 // ---------------------------------------------------------------- inicio ---
 async function iniciar() {
   document.getElementById('btn-menu')?.addEventListener('click', () => {
@@ -219,6 +294,10 @@ async function iniciar() {
     window.location.hash = '';
     mostrarLogin();
     aviso('Sesión cerrada', 'info', 2500);
+  });
+
+  document.getElementById('btn-contrasena')?.addEventListener('click', () => {
+    abrirCambioContrasena();
   });
 
   window.addEventListener('hashchange', () => {
