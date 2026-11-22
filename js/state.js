@@ -4,6 +4,7 @@ import { leerConfiguracionCompleta } from './services/configuracion.js';
 
 export const estado = {
   sesion: null,
+  usuario: null,
   perfil: null,
   config: null,
   datos: {
@@ -37,4 +38,10 @@ export function cuandoListo() {
     };
     revisar();
   });
+}
+
+/** Refleja el ciclo escolar activo en la barra superior. */
+export function pintarCiclo() {
+  const chip = document.getElementById('ciclo-valor');
+  if (chip) chip.textContent = estado.config?.ciclo_activo || 'Sin definir';
 }

@@ -1,7 +1,7 @@
 // services/configuracion.js — datos oficiales y textos de plantilla.
 
 import { TABLAS } from '../config.js';
-import { listar, insertar, actualizar } from './db.js';
+import { listar, guardarEn } from './db.js';
 
 /** Lee toda la configuración como un objeto plano { clave: valor }. */
 export async function leerConfiguracion() {
@@ -42,22 +42,26 @@ export async function leerConfiguracionCompleta() {
   };
 }
 
-/** Guarda un valor de configuración. */
+/** Guarda un valor de configuración (alta o actualización en una sola petición). */
 export async function guardarConfiguracion(clave, valor, usuarioId = null) {
   // El valor viaja como texto plano: PostgREST lo serializa como JSON y lo
   // guarda en la columna jsonb. Si se serializara aquí, quedaría entrecomillado.
   const contenido = valor === null || valor === undefined ? '' : String(valor);
 
-  const existente = (await listar(TABLAS.configuracion, { filtros: { clave } }))[0];
-  if (existente) {
-    return actualizar(TABLAS.configuracion, existente.id, {
+  return guardarEn(
+    TABLAS.configuracion,
+    {
+      clave,
       valor: contenido,
       actualizado_por: usuarioId,
-    });
-  }
-  return insertar(TABLAS.configuracion, {
-    clave,
-    valor: contenido,
-    actualizado_por: usuarioId,
-  });
+    },
+    'clave',
+  );
+}
+
+/** Guarda varios valores a la vez (en paralelo). */
+export async function guardarConfiguraciones(valores = {}, usuarioId = null) {
+  await Promise.all(
+    Object.entries(valores).map(([clave, valor]) => guardarConfiguracion(clave, valor, usuarioId)),
+  );
 }

@@ -2,7 +2,7 @@
 
 import { supabase } from './supabase-client.js';
 import { ROL } from './config.js';
-import { estado, setEstado, cargarConfig } from './state.js';
+import { estado, setEstado, cargarConfig, pintarCiclo } from './state.js';
 import { entrar, salir, cargarPerfil } from './services/auth.js';
 import { aviso, ICONO, iniciales, colorAvatar, escapeHTML } from './utils/ui.js';
 import { montarLogin } from './views/login.js';
@@ -104,6 +104,7 @@ function pintarUsuario() {
 
   const chip = document.getElementById('ciclo-valor');
   if (chip) chip.textContent = estado.config?.ciclo_activo || 'Sin definir';
+  pintarCiclo();
 }
 
 function cerrarMenuMovil() {
@@ -157,14 +158,14 @@ function mostrarLogin() {
   document.getElementById('app-view').setAttribute('hidden', '');
   document.getElementById('login-view').removeAttribute('hidden');
   montarLogin({
-    alEntrar: async (usuario) => {
-      const perfil = await cargarPerfil(usuario);
+    alEntrar: async ({ user, session }) => {
+      const perfil = await cargarPerfil(user);
       if (!perfil) {
         await salir();
         aviso('Tu cuenta no está registrada en la plataforma. Contacta al administrador.', 'error', 6000);
         return;
       }
-      setEstado({ sesion: usuario, perfil, cargando: false });
+      setEstado({ sesion: session, usuario: user, perfil, cargando: false });
       await mostrarApp();
     },
   });
@@ -184,19 +185,19 @@ async function mostrarApp() {
 
 async function manejarSesion(sesion) {
   if (!sesion) {
-    setEstado({ sesion: null, perfil: null, cargando: false });
+    setEstado({ sesion: null, usuario: null, perfil: null, cargando: false });
     mostrarLogin();
     return;
   }
-  const perfil = await cargarPerfil(sesion);
+  const perfil = await cargarPerfil(sesion.user);
   if (!perfil) {
     await salir();
-    setEstado({ sesion: null, perfil: null, cargando: false });
+    setEstado({ sesion: null, usuario: null, perfil: null, cargando: false });
     mostrarLogin();
     aviso('Tu cuenta no está registrada en la plataforma. Contacta al administrador.', 'error', 6000);
     return;
   }
-  setEstado({ sesion, perfil, cargando: false });
+  setEstado({ sesion, usuario: sesion.user, perfil, cargando: false });
   await mostrarApp();
 }
 
@@ -214,7 +215,7 @@ async function iniciar() {
 
   document.getElementById('btn-salir')?.addEventListener('click', async () => {
     await salir();
-    setEstado({ sesion: null, perfil: null, config: null });
+    setEstado({ sesion: null, usuario: null, perfil: null, config: null });
     window.location.hash = '';
     mostrarLogin();
     aviso('Sesión cerrada', 'info', 2500);
@@ -226,7 +227,7 @@ async function iniciar() {
 
   supabase.auth.onAuthStateChange((evento, sesion) => {
     if (evento === 'SIGNED_OUT') {
-      setEstado({ sesion: null, perfil: null });
+      setEstado({ sesion: null, usuario: null, perfil: null });
       mostrarLogin();
     }
   });

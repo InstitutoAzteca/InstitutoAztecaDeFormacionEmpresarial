@@ -18,14 +18,14 @@ function traducirError(mensaje = '') {
   return mensaje || 'Ocurrió un error inesperado.';
 }
 
-/** Inicia sesión con correo y contraseña. */
+/** Inicia sesión con correo y contraseña. Devuelve { user, session }. */
 export async function entrar(email, password) {
   const { data, error } = await supabase.auth.signInWithPassword({
     email: String(email).trim().toLowerCase(),
     password,
   });
   if (error) throw new Error(traducirError(error.message));
-  return data.user;
+  return { user: data.user, session: data.session };
 }
 
 /** Cierra la sesión. */

@@ -66,6 +66,18 @@ export async function eliminar(tabla, id) {
   if (error) throw error;
 }
 
+/** Inserta o actualiza según la clave única indicada. */
+export async function guardarEn(tabla, fila, claveUnica = 'id') {
+  asegurarTabla(tabla);
+  const { data, error } = await supabase
+    .from(tabla)
+    .upsert(fila, { onConflict: claveUnica })
+    .select()
+    .single();
+  if (error) throw error;
+  return { id: data.id, ...data };
+}
+
 export async function contar(tabla, filtros = {}) {
   asegurarTabla(tabla);
   let q = supabase.from(tabla).select('id', { count: 'exact', head: true });

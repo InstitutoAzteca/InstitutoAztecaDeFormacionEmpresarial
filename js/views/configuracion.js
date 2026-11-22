@@ -1,8 +1,8 @@
 // views/configuracion.js — datos oficiales, plantillas, niveles y grupos.
 
 import { TABLAS, ETIQUETA_ROL } from '../config.js';
-import { estado, setEstado, cargarConfig } from '../state.js';
-import { leerConfiguracion, guardarConfiguracion } from '../services/configuracion.js';
+import { estado, setEstado, cargarConfig, pintarCiclo } from '../state.js';
+import { leerConfiguracion, guardarConfiguraciones } from '../services/configuracion.js';
 import { listar, insertar, actualizar } from '../services/db.js';
 import { listarPersonal } from '../services/auth.js';
 import { escapeHTML, aviso, abrirModal, confirmar, ICONO } from '../utils/ui.js';
@@ -458,11 +458,10 @@ export function conectarGuardado(contenido) {
     evento.preventDefault();
     const datos = Object.fromEntries(new FormData(evento.target).entries());
     try {
-      for (const [clave, valor] of Object.entries(datos)) {
-        await guardarConfiguracion(clave, valor, estado.perfil?.id ?? null);
-      }
+      await guardarConfiguraciones(datos, estado.perfil?.id ?? null);
       setEstado({ config: null });
       await cargarConfig();
+      pintarCiclo();
       aviso('Configuración guardada', 'exito');
     } catch (error) {
       aviso(error.message || 'No se pudo guardar la configuración', 'error');
@@ -473,11 +472,10 @@ export function conectarGuardado(contenido) {
     evento.preventDefault();
     const datos = Object.fromEntries(new FormData(evento.target).entries());
     try {
-      for (const [clave, valor] of Object.entries(datos)) {
-        await guardarConfiguracion(clave, valor, estado.perfil?.id ?? null);
-      }
+      await guardarConfiguraciones(datos, estado.perfil?.id ?? null);
       setEstado({ config: null });
       await cargarConfig();
+      pintarCiclo();
       aviso('Plantillas guardadas', 'exito');
     } catch (error) {
       aviso(error.message || 'No se pudieron guardar las plantillas', 'error');
