@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0B2F5B" />
+  <meta name="description" content="Plataforma de administración del Instituto Azteca de Formación Empresarial: alumnos, mensualidades, calificaciones y documentos oficiales." />
+  <title>IAFE · Administración</title>
+
+  <link rel="icon" type="image/png" href="assets/png-clipart-instituto-azteca-de-formacion-empresarial-organization-institute-education-university-aztec-thumbnail-removebg-preview.png" />
+  <link rel="apple-touch-icon" href="assets/FotoPerfil.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/app.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm" type="module"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+  <a href="#contenido" class="skip-link">Saltar al contenido principal</a>
+
+  <!-- ===================== ACCESO ===================== -->
+  <div id="login-view" class="login" hidden>
+    <div class="login__arte">
+      <img src="assets/HeroImage_InstitutoAzteca.png" alt="" class="login__hero" />
+      <div class="login__marca">
+        <span class="login__siglas">IAFE</span>
+        <h1 class="login__titulo">Instituto Azteca<br />de Formación Empresarial</h1>
+        <p class="login__lema">Administración de alumnos, mensualidades, calificaciones y documentos oficiales.</p>
+      </div>
+    </div>
+
+    <div class="login__panel">
+      <div class="login__form-wrap">
+        <div class="login__cabecera">
+          <img src="assets/FotoPerfil.png" alt="IAFE" class="login__logo" />
+          <h2 class="login__titulo-acceso" id="login-titulo">Acceso al panel</h2>
+          <p class="login__subtitulo" id="login-subtitulo">Inicia sesión con tu cuenta institucional.</p>
+        </div>
+
+        <form id="login-form" class="form" novalidate>
+          <div class="campo">
+            <label class="etiqueta" for="login-email">Correo electrónico</label>
+            <input class="input" type="email" id="login-email" name="email" autocomplete="username" placeholder="nombre@institutoazteca.edu.mx" required />
+          </div>
+          <div class="campo">
+            <label class="etiqueta" for="login-password">Contraseña</label>
+            <div class="input-grupo">
+              <input class="input" type="password" id="login-password" name="password" autocomplete="current-password" placeholder="••••••••" required />
+              <button type="button" class="input-grupo__boton" id="login-ver" aria-label="Mostrar contraseña">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <p class="alerta alerta--error" id="login-error" hidden></p>
+          <button class="btn btn--primario btn--bloque" type="submit" id="login-enviar">Entrar</button>
+        </form>
+
+        <div class="login__pie">
+          <p class="login__nota">¿Eres la primera persona en usar la plataforma?</p>
+          <button class="btn btn--fantasma btn--bloque" type="button" id="btn-bootstrap">Configurar cuenta de administrador</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== APLICACIÓN ===================== -->
+  <div id="app-view" class="app" hidden>
+    <div class="app__velo" id="app-velo" hidden></div>
+
+    <aside class="lateral" id="lateral">
+      <div class="lateral__marca">
+        <img src="assets/png-clipart-instituto-azteca-de-formacion-empresarial-organization-institute-education-university-aztec-thumbnail-removebg-preview.png" alt="" class="lateral__logo" />
+        <div class="lateral__nombres">
+          <span class="lateral__siglas">IAFE</span>
+          <span class="lateral__area">Administración</span>
+        </div>
+      </div>
+
+      <nav class="lateral__nav" id="lateral-nav" aria-label="Navegación principal"></nav>
+
+      <div class="lateral__pie">
+        <div class="lateral__usuario">
+          <span class="avatar" id="usuario-avatar">··</span>
+          <div class="lateral__usuario-datos">
+            <span class="lateral__usuario-nombre" id="usuario-nombre">—</span>
+            <span class="lateral__usuario-rol" id="usuario-rol">—</span>
+          </div>
+        </div>
+        <button class="lateral__salir" id="btn-salir" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Cerrar sesión
+        </button>
+      </div>
+    </aside>
+
+    <div class="app__cuerpo">
+      <header class="barra">
+        <button class="barra__menu" id="btn-menu" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="lateral">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></svg>
+        </button>
+
+        <nav class="miga" aria-label="Ruta de navegación">
+          <span class="miga__actual" id="miga-actual">Panel</span>
+        </nav>
+
+        <div class="barra__contexto">
+          <span class="ciclo-chip" id="ciclo-chip" title="Ciclo escolar activo">
+            <span class="ciclo-chip__etiqueta">Ciclo</span>
+            <span class="ciclo-chip__valor" id="ciclo-valor">—</span>
+          </span>
+        </div>
+      </header>
+
+      <main id="contenido" class="contenido" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <div id="modal-root"></div>
+  <div id="toast-root" class="avisos" role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

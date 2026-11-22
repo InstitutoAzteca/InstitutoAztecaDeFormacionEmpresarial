@@ -1,0 +1,14 @@
+{
+  "name": "iafe-admin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Plataforma de administración del Instituto Azteca de Formación Empresarial: alumnos, mensualidades, calificaciones y documentos oficiales.",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve . -l 8080",
+    "serve": "npx serve . -l 8080",
+    "semilla": "node tools/semilla-demo.mjs",
+    "semilla:limpiar": "node tools/semilla-demo.mjs --limpiar"
+  },
+  "license": "UNLICENSED"
+}
